@@ -165,6 +165,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)deselectAsset:(PHAsset *)asset;
 
+
+
+
+// by kinlymg
+
+-(void)selectAllAssets:(NSMutableArray*)assets; //选择全部。
+-(void)deselectAllAssets;//不选
+-(void)invertSelection:(NSMutableArray*)assets;
+
+
+
+
 @end
 
 
@@ -367,6 +379,13 @@ extern NSString * const CTAssetsPickerDidSelectAssetNotification;
  *  The notification’s `object` is a `PHAsset` that is deselected
  */
 extern NSString * const CTAssetsPickerDidDeselectAssetNotification;
+
+
+
+//by kinlymg
+extern NSString * const CTAssetsPickerDidSelectAllAssetsNotification;
+extern NSString * const CTAssetsPickerDidDeselectAllAssetsNotification;
+
 
 
 @end

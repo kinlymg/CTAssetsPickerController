@@ -46,6 +46,13 @@ NSString * const CTAssetsPickerDidSelectAssetNotification = @"CTAssetsPickerDidS
 NSString * const CTAssetsPickerDidDeselectAssetNotification = @"CTAssetsPickerDidDeselectAssetNotification";
 
 
+//by kinlymg
+NSString * const CTAssetsPickerDidSelectAllAssetsNotification = @"CTAssetsPickerDidSelectAllAssetsNotification";
+NSString * const CTAssetsPickerDidDeselectAllAssetsNotification = @"CTAssetsPickerDidDeselectAllAssetsNotification";
+
+
+
+
 
 @interface CTAssetsPickerController ()
 <PHPhotoLibraryChangeObserver, UISplitViewControllerDelegate, UINavigationControllerDelegate>
@@ -468,6 +475,20 @@ NSString * const CTAssetsPickerDidDeselectAssetNotification = @"CTAssetsPickerDi
                                                         object:sender];
 }
 
+//by kinlymgs
+- (void)postDidSelectAllAssetsNotification:(id)sender
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:CTAssetsPickerDidSelectAllAssetsNotification
+                                                        object:nil];
+}
+
+- (void)postDidDeselectAllAssetsNotification:(id)sender
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:CTAssetsPickerDidDeselectAllAssetsNotification
+                                                        object:nil];
+}
+
+
 
 #pragma mark - Accessors
 
@@ -504,7 +525,39 @@ NSString * const CTAssetsPickerDidDeselectAssetNotification = @"CTAssetsPickerDi
     self.selectedAssets[index] = object;
 }
 
+//by kinlymg
+-(void)addObjects:(NSArray*)assets{
+    [self.selectedAssets removeAllObjects];
+    [self.selectedAssets addObjectsFromArray:assets];
+}
+-(void)removeObjects{
+    [self.selectedAssets removeAllObjects];
+}
 
+
+
+#pragma mark- de/select all asset by kinlymg
+-(void)selectAllAssets:(NSMutableArray*)assets{
+    [self addObjects:assets];
+    [self postDidSelectAllAssetsNotification:nil];
+    [self postSelectedAssetsDidChangeNotification:self.selectedAssets];
+}
+-(void)deselectAllAssets{
+    [self removeObjects];
+    [self postDidDeselectAllAssetsNotification:nil];
+    [self postSelectedAssetsDidChangeNotification:self.selectedAssets];
+}
+//反选
+-(void)invertSelection:(NSMutableArray*)assets{
+    NSMutableArray *temArray=[NSMutableArray arrayWithArray:assets];
+    [temArray removeObjectsInArray:self.selectedAssets];
+    [self.selectedAssets removeAllObjects];
+    [self.selectedAssets addObjectsFromArray:temArray];
+    [self postDidSelectAllAssetsNotification:nil];
+    [self postSelectedAssetsDidChangeNotification:self.selectedAssets];
+}
+
+///////////
 #pragma mark - De/Select asset
 
 - (void)selectAsset:(PHAsset *)asset

@@ -108,6 +108,21 @@ NSString * const CTAssetsGridViewFooterIdentifier = @"CTAssetsGridViewFooterIden
     [self resetCachedAssetImages];
 }
 
+// by kinlymg
+-(void)appset{
+    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+    
+    UIBarButtonItem *selectAllButton=[[UIBarButtonItem alloc]initWithTitle: NSLocalizedString(@"selectall",nil) style:UIBarButtonItemStylePlain target:self action:@selector(barSelectAll:)];
+    UIBarButtonItem *noSelectButton=[[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"noselect",nil)style:UIBarButtonItemStylePlain target:self action:@selector(barCancelSelect:)];
+    
+    UIBarButtonItem *deSelectAllButton=[[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"inverselect",nil) style:UIBarButtonItemStylePlain target:self action:@selector(barInvertSelectAll:)];
+    [self setToolbarItems:[NSArray arrayWithObjects:selectAllButton,flexSpace,noSelectButton,flexSpace,deSelectAllButton,nil] animated:YES];
+    UIViewController *viewcontroller=self.navigationController;
+    [self.navigationController setToolbarHidden:NO animated:YES];
+}
+
+/////////////
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -115,6 +130,7 @@ NSString * const CTAssetsGridViewFooterIdentifier = @"CTAssetsGridViewFooterIden
     [self setupAssets];
     [self updateTitle:self.picker.selectedAssets];
     [self updateButton:self.picker.selectedAssets];
+    [self appset];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -150,7 +166,25 @@ NSString * const CTAssetsGridViewFooterIdentifier = @"CTAssetsGridViewFooterIden
     [self unregisterChangeObserver];
     [self removeNotificationObserver];
 }
+//by kinlymg
+///
+#pragma mark -select operate
+-(void)barSelectAll:(id)sender{
+    NSArray* tempArray = [self.fetchResult objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.fetchResult.count)]];
+    [self.picker selectAllAssets:tempArray];
+}
+-(void)barInvertSelectAll:(id)sender{
+    NSArray* tempArray = [self.fetchResult objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.fetchResult.count)]];
+    [self.picker invertSelection:tempArray];
+    
+}
 
+-(void)barCancelSelect:(id)sender{
+    [self.picker deselectAllAssets];
+}
+
+//////////////
+////////////
 
 #pragma mark - Accessors
 
@@ -273,6 +307,19 @@ NSString * const CTAssetsGridViewFooterIdentifier = @"CTAssetsGridViewFooterIden
                selector:@selector(assetsPickerDidDeselectAsset:)
                    name:CTAssetsPickerDidDeselectAssetNotification
                  object:nil];
+    
+    // by kinlymg
+    [center addObserver:self
+               selector:@selector(assetsPickerDidSelectAllAssets:)
+                   name:CTAssetsPickerDidSelectAllAssetsNotification
+                 object:nil];
+    
+    [center addObserver:self
+               selector:@selector(assetsPickerDidSelectAllAssets:)
+                   name:CTAssetsPickerDidDeselectAllAssetsNotification
+                 object:nil];
+    
+
 }
 
 - (void)removeNotificationObserver
@@ -282,6 +329,12 @@ NSString * const CTAssetsGridViewFooterIdentifier = @"CTAssetsGridViewFooterIden
     [center removeObserver:self name:CTAssetsPickerSelectedAssetsDidChangeNotification object:nil];
     [center removeObserver:self name:CTAssetsPickerDidSelectAssetNotification object:nil];
     [center removeObserver:self name:CTAssetsPickerDidDeselectAssetNotification object:nil];
+    
+    // by kinlymg
+    
+    [center removeObserver:self name:CTAssetsPickerDidSelectAllAssetsNotification object:nil];
+    [center removeObserver:self name:CTAssetsPickerDidDeselectAllAssetsNotification object:nil];
+
 }
 
 
@@ -421,6 +474,11 @@ NSString * const CTAssetsGridViewFooterIdentifier = @"CTAssetsGridViewFooterIden
     else
         self.navigationItem.rightBarButtonItem.enabled = (self.picker.selectedAssets.count > 0);
 }
+
+- (void)assetsPickerDidSelectAllAssets:(NSNotification *)notification{
+    [self.collectionView reloadData];
+}
+
 
 
 #pragma mark - Did de/select asset notifications
